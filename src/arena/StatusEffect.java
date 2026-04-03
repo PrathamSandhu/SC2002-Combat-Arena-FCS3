@@ -1,4 +1,4 @@
-package com.arena;
+package arena;
 
 public abstract class StatusEffect
 {

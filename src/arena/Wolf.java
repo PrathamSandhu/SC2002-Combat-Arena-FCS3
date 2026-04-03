@@ -1,4 +1,4 @@
-package com.arena;
+package arena;
 
 public class Wolf extends Enemy
 {

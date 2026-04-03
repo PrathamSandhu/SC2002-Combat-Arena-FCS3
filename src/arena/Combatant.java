@@ -1,4 +1,4 @@
-package com.arena;
+package arena;
 
 import java.util.ArrayList;
 import java.util.List;

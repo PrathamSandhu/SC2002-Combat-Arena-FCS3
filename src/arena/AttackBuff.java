@@ -1,4 +1,4 @@
-package com.arena;
+package arena;
 
 public class AttackBuff extends StatusEffect
 {
