@@ -5,7 +5,12 @@ public class BasicAttack implements Action {
     int initHp = target.getHp();
     target.takeDamage(damage);
 
-    return String.format("%s -> %s -> %s: HP: %d -> %d (dmg: %d - %d = %d)", user.getName(), getName(), target.getName(), initHp, target.getHp(), user.getAttack(), target.getDefense(), damage);
+    if (target.getHp() > 0) {
+      return String.format("%s -> %s -> %s: HP: %d -> %d (dmg: %d - %d = %d)", user.getName(), getName(), target.getName(), initHp, target.getHp(), user.getAttack(), target.getDefense(), damage);
+    }
+    else {
+      return String.format("%s -> %s -> %s: HP: %d -> %d ELIMINATED (dmg: %d - %d = %d)", user.getName(), getName(), target.getName(), initHp, target.getHp(), user.getAttack(), target.getDefense(), damage);
+    }
   }
 
   @Override
