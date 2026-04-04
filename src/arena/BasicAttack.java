@@ -1,3 +1,5 @@
+package arena;
+
 public class BasicAttack implements Action {
   @Override
   public String execute(Combatant user, Combatant target, BattleEngine engine) {
