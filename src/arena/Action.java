@@ -1,5 +1,7 @@
+package arena;
+
 public interface Action {
-  void execute(Combatant user, COmbatant target, BattleEngine engine);
+  String execute(Combatant user, Combatant target, BattleEngine engine);
 
   String getName();
 }
