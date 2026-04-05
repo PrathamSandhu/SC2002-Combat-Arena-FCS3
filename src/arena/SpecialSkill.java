@@ -1,0 +1,32 @@
+package arena;
+
+public abstract class SpecialSkill implements Action {
+    protected int coolDown = 3;
+    protected int curCoolDown = 0;
+
+    public int getCoolDown() {
+        return coolDown;
+    }
+
+    public int getCurCoolDown() {
+        return curCoolDown;
+    }
+    public boolean isUsable() {
+        return curCoolDown == 0;
+    }
+
+    public void triggerCoolDown() {
+        curCoolDown = coolDown;
+    }
+
+    public void reduceCoolDown() {
+        if (curCoolDown > 0) {
+            curCoolDown--;
+        }
+    }
+
+    @Override
+    public String getName() {
+        return "SpecialSkill";
+    }
+}
