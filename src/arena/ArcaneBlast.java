@@ -18,7 +18,8 @@ public class ArcaneBlast extends SpecialSkill {
                 message.append(String.format("%s: HP: %d -> %d (dmg: %d - %d = %d)%n", enemy.getName(), initHp, enemy.getHp(), user.getAttack(), enemy.getDefense(), damage));
             }
             else {
-                // user +10 atk
+                AttackBuff atkBuff = new AttackBuff();
+                atkBuff.apply(user);
                 message.append(String.format("%s: HP: %d -> %d ELIMINATED (dmg: %d - %d = %d)%n", enemy.getName(), initHp, enemy.getHp(), user.getAttack(), enemy.getDefense(), damage));
             }
         }
