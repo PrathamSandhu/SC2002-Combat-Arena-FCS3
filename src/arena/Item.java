@@ -1,5 +1,5 @@
 public Interface Item {
-  void use(Combatant user, BattleEngine engine);
+  void use(Player user, BattleEngine engine);
 
   String getName();
 }
