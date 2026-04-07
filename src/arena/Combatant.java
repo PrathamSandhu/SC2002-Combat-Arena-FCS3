@@ -22,9 +22,8 @@ public abstract class Combatant
         this.activeEffects = new ArrayList<>();
     }
 
-    public void takeDamage(int amount)
+    public void takeDamage(int damage)
     {
-        int damage = Math.max(0, amount - defense);
         hp = Math.max(0, hp - damage);
     }
 
