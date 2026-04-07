@@ -7,7 +7,7 @@ public class Potion implements Item {
         int initHp = user.getHp();
         user.heal(heal);
 
-        return String.format("%s -> Item -> %s used: HP: %d -> %d (+100)", user.getName(), getName(), initHp, user.getHp());
+        return String.format("%s used: HP: %d -> %d (+100)", getName(), initHp, user.getHp());
     }
 
     @Override
