@@ -13,6 +13,8 @@ public class ArcaneBlast extends SpecialSkill {
             int damage = Math.max(0, user.getAttack() - enemy.getDefense());
             int initHp = enemy.getHp();
             enemy.takeDamage(damage);
+            triggerCoolDown();
+
 
             if (enemy.getHp() > 0) {
                 message.append(String.format("%s: HP: %d -> %d (dmg: %d - %d = %d)%n", enemy.getName(), initHp, enemy.getHp(), user.getAttack(), enemy.getDefense(), damage));
