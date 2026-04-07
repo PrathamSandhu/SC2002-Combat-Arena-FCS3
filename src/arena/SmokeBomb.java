@@ -2,7 +2,7 @@ package arena;
 
 public class SmokeBomb implements Item {
     @Override
-    public String use(Combatant user, BattleEngine engine) {
+    public String use(Player user, BattleEngine engine) {
         SmokeBombEffect smokeBombEffect = new SmokeBombEffect();
         smokeBombEffect.apply(user);
         user.applyEffect(smokeBombEffect);
