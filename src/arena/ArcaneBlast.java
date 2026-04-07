@@ -10,7 +10,7 @@ public class ArcaneBlast extends SpecialSkill {
         StringBuilder message = new StringBuilder();
 
         for (Combatant enemy : engine.getEnemies()) { // see engine code first
-            int damage = Math.max(0, user.getAttack() - target.getDefense());
+            int damage = Math.max(0, user.getAttack() - enemy.getDefense());
             int initHp = enemy.getHp();
             enemy.takeDamage(damage);
 
