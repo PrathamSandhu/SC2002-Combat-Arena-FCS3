@@ -2,7 +2,7 @@ package arena;
 
 public class Potion implements Item {
     @Override
-    public String use(Combatant user, BattleEngine engine) {
+    public String use(Player user, BattleEngine engine) {
         int heal = 100;
         int initHp = user.getHp();
         user.heal(heal);
