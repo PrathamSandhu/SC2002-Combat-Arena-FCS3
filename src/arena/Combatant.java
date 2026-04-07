@@ -47,6 +47,13 @@ public abstract class Combatant
             if (effect.isExpired())
                 expired.add(effect);
         }
+        for (StatusEffect effect : expired)
+        {
+            if (effect instanceof DefendEffect)
+                ((DefendEffect) effect).remove(this);
+            if (effect instanceof AttackBuff)
+                ((AttackBuff) effect).remove(this);
+        }
         activeEffects.removeAll(expired);
     }
 

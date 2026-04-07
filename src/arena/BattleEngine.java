@@ -148,4 +148,12 @@ public class BattleEngine
                 getEnemies().size(), round - 1);
         }
     }
+
+    public Combatant selectTarget(List<Combatant> combatants)
+    {
+        List<Combatant> enemies = getEnemies();
+        if (enemies.size() == 1)
+            return enemies.get(0);
+        return enemies.get(0);
+    }
 }

@@ -3,6 +3,7 @@ package arena;
 public class DefendEffect extends StatusEffect
 {
     private static final int DEFENSE_BONUS = 10;
+    private boolean applied = false;
 
     public DefendEffect()
     {
@@ -12,16 +13,27 @@ public class DefendEffect extends StatusEffect
     @Override
     public void apply(Combatant combatant)
     {
-        if (duration == 2)
+        if (!applied)
+        {
             combatant.defense += DEFENSE_BONUS;
+            applied = true;
+        }
     }
 
     @Override
     public void tick()
     {
         duration--;
+    }
+
+    @Override
+    public boolean isExpired()
+    {
         if (duration <= 0)
-            duration = 0;
+        {
+            return true;
+        }
+        return false;
     }
 
     public void remove(Combatant combatant)
