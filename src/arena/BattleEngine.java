@@ -12,7 +12,7 @@ public class BattleEngine
     private int round;
     private boolean backupSpawned;
 
-    public BattleEngine(Player player, List<Combatant> initialEnemies, List<Combatant> backupEnemies, TurnOrderStrategy turnOrderStrategy)
+    public BattleEngine(Player player, List<Enemy> initialEnemies, List<Enemy> backupEnemies, TurnOrderStrategy turnOrderStrategy)
     {
         this.player = player;
         this.activeEnemies = new ArrayList<>(initialEnemies);
