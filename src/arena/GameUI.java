@@ -16,6 +16,8 @@ public class GameUI {
         BattleEngine engine = createBattleEngine(player, difficulty);
 
         DisplayLoadingScreen(player, difficulty, engine);
+
+        runGame(engine);
     }
 
     // Input helpers
@@ -53,7 +55,9 @@ public class GameUI {
     private void printDivider() {
         System.out.println("------------------------------");
     }
+    //
 
+    // Setup
     private Player choosePlayer() {
         System.out.println("Choose a player:");
         System.out.println("Warrior (HP: 260, Attack: 40, Defense: 20, Speed: 30)");
@@ -139,7 +143,95 @@ public class GameUI {
         }
         System.out.println();
 
-        System.out.print("Level: %s "); // need method to count no of enemies
+        List<Combatant> enemies = engine.getEnemies();
+        if (difficulty == Difficulty.EASY) {
+            System.out.print("Level: Easy (" + enemies.size() +  "Goblins) - ");
 
+            for (int i = 0; i < enemies.size(); i++) {
+                char label = (char) ('A' + i);
+                System.out.print(label);
+                if (i < enemies.size() - 1) {
+                    System.out.print(", ");
+                }
+            }
+
+            Combatant e = enemies.get(0);
+            System.out.printf(", %s Stats: HP: %d, ATK: %d, DEF: %d, SPD: %d",
+                    e.getName(), e.getHp(), e.getAttack(), e.getDefense(), e.getSpeed());
+        }
+        else {
+            System.out.print("Level: " + difficulty.name().charAt(0) + difficulty.name().substring(1).toLowerCase() + " - ");
+
+            int goblinCount = 0;
+            int wolfCount = 0;
+
+            for (Combatant e : enemies) {
+                if (e instanceof Goblin) {
+                    goblinCount++;
+                }
+                else if (e instanceof Wolf) {
+                    wolfCount++;
+                }
+            }
+
+            boolean first = true;
+            if (goblinCount > 0) {
+                System.out.print(goblinCount + " Goblin");
+                first = false;
+            }
+
+            if (wolfCount > 0) {
+                if (!first) {
+                    System.out.print(" + ");
+                }
+                System.out.print(wolfCount + " Wolf");
+            }
+
+            List<Combatant> backupEnemies = engine.getBackupEnemies();
+            System.out.print(" | Backup: ");
+
+            goblinCount = 0;
+            List<Combatant> wolves = new ArrayList<>();
+
+            for (Combatant e : backupEnemies) {
+                if (e instanceof Goblin) {
+                    goblinCount++;
+                }
+                else if (e instanceof Wolf) {
+                    wolves.add(e);
+                }
+            }
+
+            first = true;
+            if (goblinCount > 0) {
+                System.out.print(goblinCount + " Goblin");
+                first = false;
+            }
+
+            for (int i = 0; i < wolves.size(); i++) {
+                if (!first) {
+                    System.out.print(" + ");
+                }
+
+                char label = (char) ('A' + i);
+                System.out.print("Wolf " + label);
+
+                first = false;
+            }
+        }
+        System.out.println();
+
+        List<Combatant> order = engine.getTurnOrder();
+        System.out.print("Turn Order: ");
+        for (int i = 0; i < order.size(); i++) {
+            Combatant combatant = order.get(i);
+            System.out.print(combatant.getName() + " (SPD " + combatant.getSpeed() + ")");
+            if (i < order.size() - 1) {
+                System.out.print(" -> ");
+            }
+        }
+        System.out.println();
     }
+    //
+
 }
