@@ -91,7 +91,7 @@ public class BattleEngine
         }
     }
 
-    private List<Combatant> getTurnOrder()
+    public List<Combatant> getTurnOrder()
     {
         List<Combatant> all = new ArrayList<>();
         all.add(player);
@@ -123,6 +123,10 @@ public class BattleEngine
                 alive.add(c);
         }
         return alive;
+    }
+
+    public List<Combatant> getBackupEnemies() {
+        return new ArrayList<>(backupEnemies);
     }
 
     public Player getPlayer()
