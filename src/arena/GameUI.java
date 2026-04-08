@@ -20,7 +20,7 @@ public class GameUI {
         runGame(engine);
     }
 
-    // Input helpers
+    // Helpers
     private int readInt(String prompt) {
         while (true) {
             System.out.println(prompt);
@@ -54,6 +54,46 @@ public class GameUI {
 
     private void printDivider() {
         System.out.println("------------------------------");
+    }
+
+    private List<String> getLabeledNames(List<Combatant> enemies) {
+        List<String> names = new ArrayList<>();
+        int goblinCount = 0;
+        int wolfCount = 0;
+
+        for (Combatant enemy : enemies) {
+            if (enemy instanceof Goblin) {
+                goblinCount++;
+            }
+            else if (enemy instanceof Wolf) {
+                wolfCount++;
+            }
+        }
+
+        int goblinIndex = 0;
+        int wolfIndex = 0;
+
+        for (Combatant enemy : enemies) {
+            if (enemy instanceof Goblin) {
+                if (goblinCount > 1) {
+                    char label = (char) ('A' + goblinIndex);
+                    names.add("Goblin " + label);
+                }
+                else {
+                    names.add("Goblin");
+                }
+            }
+            else if (enemy instanceof Wolf) {
+                if (wolfCount > 1) {
+                    char label = (char) ('A' + wolfIndex);
+                    names.add("Wolf " + label);
+                }
+                else {
+                    names.add("Wolf");
+                }
+            }
+        }
+        return names;
     }
     //
 
@@ -144,79 +184,103 @@ public class GameUI {
         System.out.println();
 
         List<Combatant> enemies = engine.getEnemies();
-        if (difficulty == Difficulty.EASY) {
-            System.out.print("Level: Easy (" + enemies.size() +  "Goblins) - ");
+        System.out.print("Level: " + difficulty.name().charAt(0) + difficulty.name().substring(1).toLowerCase() + " - ");
 
-            for (int i = 0; i < enemies.size(); i++) {
-                char label = (char) ('A' + i);
-                System.out.print(label);
-                if (i < enemies.size() - 1) {
-                    System.out.print(", ");
+        List<String> names = getLabeledNames(enemies);
+        int goblinCount = 0;
+        int wolfCount = 0;
+        boolean first = true;
+
+        for (Combatant enemy : enemies) {
+            if (enemy instanceof Goblin) {
+                goblinCount++;
+            }
+            else if (enemy instanceof Wolf) {
+                wolfCount++;
+            }
+        }
+        if (goblinCount == 1) {
+            System.out.print("1 Goblin");
+            first = false;
+        }
+        else if (goblinCount > 1) {
+            for (String name : names) {
+                if (name.contains("Goblin")) {
+                    if (!first) {
+                        System.out.print(" + ");
+                    }
+                    System.out.print(name);
+                    first = false;
                 }
             }
-
-            Combatant e = enemies.get(0);
-            System.out.printf(", %s Stats: HP: %d, ATK: %d, DEF: %d, SPD: %d",
-                    e.getName(), e.getHp(), e.getAttack(), e.getDefense(), e.getSpeed());
         }
-        else {
-            System.out.print("Level: " + difficulty.name().charAt(0) + difficulty.name().substring(1).toLowerCase() + " - ");
 
-            int goblinCount = 0;
-            int wolfCount = 0;
+        if (wolfCount == 1) {
+            if (!first) {
+                System.out.print(" + ");
+            }
+            System.out.print("1 Wolf");
+        }
+        else if (wolfCount > 1) {
+            for (String name : names) {
+                if (name.contains("Wolf")) {
+                    if (!first) {
+                        System.out.print(" + ");
+                    }
+                    System.out.print(name);
+                    first = false;
+                }
+            }
+        }
 
-            for (Combatant e : enemies) {
-                if (e instanceof Goblin) {
+        List<Combatant> backupEnemies = engine.getBackupEnemies();
+        if (!backupEnemies.isEmpty()) {
+            System.out.print(" | Backup: ");
+            List<String> backupNames = getLabeledNames(backupEnemies);
+            goblinCount = 0;
+            wolfCount = 0;
+            first = true;
+
+            for (Combatant enemy : backupEnemies) {
+                if (enemy instanceof Goblin) {
                     goblinCount++;
                 }
-                else if (e instanceof Wolf) {
+                else if (enemy instanceof Wolf) {
                     wolfCount++;
                 }
             }
-
-            boolean first = true;
-            if (goblinCount > 0) {
-                System.out.print(goblinCount + " Goblin");
+            if (goblinCount == 1) {
+                System.out.print("1 Goblin");
                 first = false;
             }
+            else if (goblinCount > 1) {
+                for (String name : backupNames) {
+                    if (name.contains("Goblin")) {
+                        if (!first) {
+                            System.out.print(" + ");
+                        }
+                        System.out.print(name);
+                        first = false;
+                    }
+                }
+            }
 
-            if (wolfCount > 0) {
+            if (wolfCount == 1) {
                 if (!first) {
                     System.out.print(" + ");
                 }
-                System.out.print(wolfCount + " Wolf");
+                System.out.print("1 Wolf");
             }
-
-            List<Combatant> backupEnemies = engine.getBackupEnemies();
-            System.out.print(" | Backup: ");
-
-            goblinCount = 0;
-            List<Combatant> wolves = new ArrayList<>();
-
-            for (Combatant e : backupEnemies) {
-                if (e instanceof Goblin) {
-                    goblinCount++;
+            else if (wolfCount > 1) {
+                for (String name : backupNames) {
+                    if (name.contains("Wolf")) {
+                        if (!first) {
+                            System.out.print(" + ");
+                        }
+                        System.out.print(name);
+                        first = false;
+                    }
                 }
-                else if (e instanceof Wolf) {
-                    wolves.add(e);
-                }
-            }
-
-            first = true;
-            if (goblinCount > 0) {
-                System.out.print(goblinCount + " Goblin");
-                first = false;
-            }
-
-            for (int i = 0; i < wolves.size(); i++) {
-                if (!first) {
-                    System.out.print(" + ");
-                }
-
-                char label = (char) ('A' + i);
-                System.out.print("Wolf " + label);
-
-                first = false;
             }
         }
         System.out.println();
@@ -234,4 +298,127 @@ public class GameUI {
     }
     //
 
+    // Gameplay
+    private void runGame(BattleEngine engine) {
+        while (!engine.isGameOver()) {
+            System.out.println("Round " + engine.getRound());
+
+            Action action = chooseAction(engine);
+            Combatant target = chooseTarget(engine, action);
+
+            List<Combatant> enemies = engine.getEnemies();
+            List<String> names = getLabeledNames(enemies);
+
+            List<String> logs = engine.processRound(action, target);
+
+            for (String log : logs) {
+                for (int i = 0; i < enemies.size(); i++) {
+                    log = log.replace(enemies.get(i).getName(), names.get(i)); // probably need a better way of doing this
+                }
+                System.out.println(log);
+            }
+
+            displayEndOfRound(engine);
+            printDivider();
+        }
+        displayFinalResult(engine);
+    }
+    //
+
+    // Choose actions
+    private Action chooseAction(BattleEngine engine) {
+        Player player = engine.getPlayer();
+
+        System.out.println("Choose your action: ");
+        System.out.println("1. Basic Attack");
+        System.out.println("2. Defend");
+        System.out.println("3. Use Item");
+        System.out.println("4. Special Skill");
+
+        int max = player.hasItems() ? 4 : 3;
+        int choice = readChoice("Choice: ", 1, max);
+
+        return switch (choice) {
+            case 2 -> new Defend();
+            case 3 -> chooseItem(player);
+            case 4 -> player.getSpecialSkill();
+            default -> new BasicAttack();
+        };
+    }
+
+    private Action chooseItem(Player player) {
+        List<Item> items = player.getItems();
+
+        for (int i = 0; i < items.size(); i++) {
+            System.out.printf("%d. %s%n", i, items.get(i).getName());
+        }
+
+        int index = readIndex("Choice: ", items);
+        return new UseItem(items.get(index));
+    }
+
+    private Combatant chooseTarget(BattleEngine engine, Action action) {
+        if (action instanceof Defend || action instanceof UseItem) {
+            return null;
+        }
+
+        List<Combatant> enemies = engine.getEnemies();
+        List<String> names = getLabeledNames(enemies);
+
+        System.out.println("Choose your target:");
+
+        for (int i = 0; i < enemies.size(); i++) {
+            System.out.printf("%d. %s (HP: %d%n", i, names.get(i), enemies.get(i).getHp());
+        }
+
+        int index = readIndex("Choice: ", enemies);
+        return enemies.get(index);
+    }
+    //
+
+    // Display
+    private void displayEndOfRound(BattleEngine engine) {
+        Player player = engine.getPlayer();
+        List<Combatant> enemies = engine.getEnemies();
+        List<String> names = getLabeledNames(enemies);
+
+        System.out.printf("End of Round %d %s HP: %d/%d | ",
+                engine.getRound(), player.getName(), player.getHp(), player.getMaxHp());
+
+        for (int i = 0; i < enemies.size(); i++) {
+            System.out.printf("%s HP: %d | ", names.get(i), enemies.get(i).getHp());
+        }
+
+        int potion = 0;
+        int powerStone = 0;
+        int smokeBomb = 0;
+
+        for (Item item : player.getItems()) {
+            if (item instanceof Potion) {
+                potion++;
+            }
+            if (item instanceof PowerStone) {
+                powerStone++;
+            }
+            if (item instanceof SmokeBomb) {
+                smokeBomb++;
+            }
+        }
+
+        if (potion > 0) {
+            System.out.printf("Potion: %d | ", potion);
+        }
+        if (powerStone > 0) {
+            System.out.printf("Power Stone: %d | ", powerStone);
+        }
+        if (smokeBomb > 0) {
+            System.out.printf("Smoke Bomb: %d | ", smokeBomb);
+        }
+
+        System.out.printf("Special Skills Cooldown: %d rounds%n", player.getSpecialSkill().getCurCoolDown());
+    }
+
+    private void displayFinalResult(BattleEngine engine) {
+        System.out.println(engine.getSummary());
+    }
 }
