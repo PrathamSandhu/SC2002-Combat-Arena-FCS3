@@ -5,7 +5,7 @@ public class PowerStone implements Item {
     public String use(Player user, BattleEngine engine) {
         SpecialSkill skill = user.getSpecialSkill();
         int before = skill.getCurCoolDown();
-        String result = skill.execute(user, engine.selectTarget(), engine); // see engine code first
+        String result = skill.execute(user, engine.selectTarget(engine.getEnemies()), engine); // see engine code first
         skill.curCoolDown = before;
 
         return String.format("%s used:%n%s", getName(), result); // commit
