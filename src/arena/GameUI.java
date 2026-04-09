@@ -78,6 +78,7 @@ public class GameUI {
                 if (goblinCount > 1) {
                     char label = (char) ('A' + goblinIndex);
                     names.add("Goblin " + label);
+                    goblinIndex++;
                 }
                 else {
                     names.add("Goblin");
@@ -87,6 +88,7 @@ public class GameUI {
                 if (wolfCount > 1) {
                     char label = (char) ('A' + wolfIndex);
                     names.add("Wolf " + label);
+                    wolfIndex++;
                 }
                 else {
                     names.add("Wolf");
@@ -100,10 +102,10 @@ public class GameUI {
     // Setup
     private Player choosePlayer() {
         System.out.println("Choose a player:");
-        System.out.println("Warrior (HP: 260, Attack: 40, Defense: 20, Speed: 30)");
-        System.out.println("Wizard (HP: 200, Attack: 50, Defense: 10, Speed: 20)");
+        System.out.println("1. Warrior (HP: 260, Attack: 40, Defense: 20, Speed: 30)");
+        System.out.println("2. Wizard (HP: 200, Attack: 50, Defense: 10, Speed: 20)");
 
-        int choice = readChoice("Choice: ", 1, 2);
+        int choice = readChoice("Choice (1-2): ", 1, 2);
         return (choice == 1) ? new Warrior() : new Wizard();
     }
 
@@ -129,7 +131,7 @@ public class GameUI {
     private Difficulty chooseDifficulty() {
         System.out.println("Choose difficulty: ");
         System.out.println("1. Easy (Initial Spawn: 3 Goblins)");
-        System.out.println("1. Medium (Initial Spawn: 1 Goblin 1 Wolf, Backup Spawn: 2 Wolf)");
+        System.out.println("2. Medium (Initial Spawn: 1 Goblin 1 Wolf, Backup Spawn: 2 Wolf)");
         System.out.println("3. Hard (Initial spawn: 2 Goblins, Backup Spawn: 1 Goblin 2 Wolf)");
 
         int choice = readChoice("Choice: ", 1, 3);
@@ -174,7 +176,7 @@ public class GameUI {
 
     private void DisplayLoadingScreen(Player player, Difficulty difficulty, BattleEngine engine) {
         printDivider();
-        System.out.printf("Player: %s, %s Stats: HP: %d, ATK: %d, DEF: %d, SPD: %d",
+        System.out.printf("Player: %s, %s Stats: HP: %d, ATK: %d, DEF: %d, SPD: %d, ",
                 player.getName(), player.getName(), player.getHp(), player.getAttack(), player.getDefense(), player.getSpeed());
 
         System.out.print("Items: ");
@@ -295,6 +297,7 @@ public class GameUI {
             }
         }
         System.out.println();
+        printDivider();
     }
     //
 
@@ -368,11 +371,11 @@ public class GameUI {
         System.out.println("Choose your target:");
 
         for (int i = 0; i < enemies.size(); i++) {
-            System.out.printf("%d. %s (HP: %d%n", i, names.get(i), enemies.get(i).getHp());
+            System.out.printf("%d. %s (HP: %d)%n", i + 1, names.get(i), enemies.get(i).getHp());
         }
 
         int index = readIndex("Choice: ", enemies);
-        return enemies.get(index);
+        return enemies.get(index-1);
     }
     //
 
