@@ -11,6 +11,7 @@ public class BattleEngine
     private TurnOrderStrategy turnOrderStrategy;
     private int round;
     private boolean backupSpawned;
+    private List<String> currentRoundLog;
 
     public BattleEngine(Player player, List<Enemy> initialEnemies, List<Enemy> backupEnemies, TurnOrderStrategy turnOrderStrategy)
     {
@@ -22,12 +23,19 @@ public class BattleEngine
         this.backupSpawned = false;
     }
 
+    // Called by Enemy.performAttack() to append lines into the current round log
+    public void log(String message)
+    {
+        if (currentRoundLog != null)
+            currentRoundLog.add(message);
+    }
+
     public List<String> processRound(Action playerAction, Combatant playerTarget)
     {
-        List<String> log = new ArrayList<>();
+        currentRoundLog = new ArrayList<>();
         List<Combatant> allCombatants = getTurnOrder();
 
-        log.add("--- Round " + round + " ---");
+        currentRoundLog.add("--- Round " + round + " ---");
 
         for (Combatant combatant : allCombatants)
         {
@@ -37,7 +45,7 @@ public class BattleEngine
             if (combatant.hasEffect(Stun.class))
             {
                 combatant.processEffects();
-                log.add(combatant.getName() + " is STUNNED and skips their turn.");
+                currentRoundLog.add(combatant.getName() + " is STUNNED and skips their turn.");
                 continue;
             }
 
@@ -46,31 +54,21 @@ public class BattleEngine
             if (combatant instanceof Player)
             {
                 String result = playerAction.execute(combatant, playerTarget, this);
-                log.add(result);
-                // Reduce special skill cooldown after the player acts
+                currentRoundLog.add(result);
                 player.getSpecialSkill().reduceCoolDown();
             }
             else
             {
-                if (player.hasEffect(SmokeBombEffect.class))
-                {
-                    log.add(combatant.getName() + " attacks " + player.getName() + " but Smoke Bomb blocks it!");
-                }
-                else
-                {
-                    Action basicAttack = new BasicAttack();
-                    String result = basicAttack.execute(combatant, player, this);
-                    log.add(result);
-                }
+                combatant.takeTurn(allCombatants, this);
             }
 
             if (isGameOver())
                 break;
         }
 
-        checkBackupSpawn(log);
+        checkBackupSpawn(currentRoundLog);
         round++;
-        return log;
+        return currentRoundLog;
     }
 
     private void checkBackupSpawn(List<String> log)
@@ -115,7 +113,6 @@ public class BattleEngine
         return player.isAlive() && getAliveEnemies().isEmpty();
     }
 
-    // Returns only alive enemies (used for game-state checks)
     public List<Combatant> getEnemies()
     {
         return getAliveEnemies();
@@ -165,9 +162,6 @@ public class BattleEngine
         }
     }
 
-    // Bug fix: previously both branches returned enemies.get(0), so multi-enemy
-    // targeting (e.g. via PowerStone) always hit the first enemy regardless of
-    // the player's choice. Now accepts the caller's pre-selected target directly.
     public Combatant selectTarget(List<Combatant> candidates)
     {
         if (candidates == null || candidates.isEmpty())

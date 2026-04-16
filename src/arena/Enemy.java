@@ -14,7 +14,7 @@ public abstract class Enemy extends Combatant
     {
         Combatant target = getTarget(combatants);
         if (target != null)
-            performAttack(target);
+            performAttack(target, engine);
     }
 
     private Combatant getTarget(List<Combatant> combatants)
@@ -27,18 +27,19 @@ public abstract class Enemy extends Combatant
         return null;
     }
 
-    private void performAttack(Combatant target)
+    private void performAttack(Combatant target, BattleEngine engine)
     {
         if (target.hasEffect(SmokeBombEffect.class))
         {
-            System.out.println(getName() + " attacks " + target.getName() + " but Smoke Bomb blocks it!");
+            engine.log(getName() + " attacks " + target.getName() + " but Smoke Bomb blocks it!");
             return;
         }
         int damage = Math.max(0, attack - target.getDefense());
-        // Bug fix: was takeDamage(attack), which ignored the defense calculation
-        // entirely and dealt raw attack damage every time.
+        int initHp = target.getHp();
         target.takeDamage(damage);
-        System.out.println(getName() + " attacks " + target.getName() + " for " + damage + " damage!");
+        engine.log(String.format("%s -> BasicAttack -> %s: HP: %d -> %d (dmg: %d - %d = %d)",
+            getName(), target.getName(), initHp, target.getHp(),
+            attack, target.getDefense(), damage));
     }
 
     @Override
