@@ -35,7 +35,9 @@ public abstract class Enemy extends Combatant
             return;
         }
         int damage = Math.max(0, attack - target.getDefense());
-        target.takeDamage(attack);
+        // Bug fix: was takeDamage(attack), which ignored the defense calculation
+        // entirely and dealt raw attack damage every time.
+        target.takeDamage(damage);
         System.out.println(getName() + " attacks " + target.getName() + " for " + damage + " damage!");
     }
 

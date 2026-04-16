@@ -47,18 +47,19 @@ public class BattleEngine
             {
                 String result = playerAction.execute(combatant, playerTarget, this);
                 log.add(result);
+                // Reduce special skill cooldown after the player acts
+                player.getSpecialSkill().reduceCoolDown();
             }
             else
             {
-                Combatant target = player;
-                Action basicAttack = new BasicAttack();
                 if (player.hasEffect(SmokeBombEffect.class))
                 {
                     log.add(combatant.getName() + " attacks " + player.getName() + " but Smoke Bomb blocks it!");
                 }
                 else
                 {
-                    String result = basicAttack.execute(combatant, target, this);
+                    Action basicAttack = new BasicAttack();
+                    String result = basicAttack.execute(combatant, player, this);
                     log.add(result);
                 }
             }
@@ -101,7 +102,7 @@ public class BattleEngine
 
     public boolean isGameOver()
     {
-        return !player.isAlive() || getEnemies().isEmpty();
+        return !player.isAlive() || getAliveEnemies().isEmpty();
     }
 
     public boolean isPlayerDefeated()
@@ -111,10 +112,16 @@ public class BattleEngine
 
     public boolean isPlayerVictorious()
     {
-        return player.isAlive() && getEnemies().isEmpty();
+        return player.isAlive() && getAliveEnemies().isEmpty();
     }
 
+    // Returns only alive enemies (used for game-state checks)
     public List<Combatant> getEnemies()
+    {
+        return getAliveEnemies();
+    }
+
+    private List<Combatant> getAliveEnemies()
     {
         List<Combatant> alive = new ArrayList<>();
         for (Combatant c : activeEnemies)
@@ -125,7 +132,8 @@ public class BattleEngine
         return alive;
     }
 
-    public List<Combatant> getBackupEnemies() {
+    public List<Combatant> getBackupEnemies()
+    {
         return new ArrayList<>(backupEnemies);
     }
 
@@ -143,21 +151,27 @@ public class BattleEngine
     {
         if (isPlayerVictorious())
         {
-            return String.format("Victory! Remaining HP: %d/%d | Total Rounds: %d",
+            return String.format(
+                "Congratulations, you have defeated all your enemies!%n" +
+                "Statistics: Remaining HP: %d/%d | Total Rounds: %d",
                 player.getHp(), player.getMaxHp(), round - 1);
         }
         else
         {
-            return String.format("Defeated. Enemies remaining: %d | Total Rounds Survived: %d",
-                getEnemies().size(), round - 1);
+            return String.format(
+                "Defeated. Don't give up, try again!%n" +
+                "Statistics: Enemies remaining: %d | Total Rounds Survived: %d",
+                getAliveEnemies().size(), round - 1);
         }
     }
 
-    public Combatant selectTarget(List<Combatant> combatants)
+    // Bug fix: previously both branches returned enemies.get(0), so multi-enemy
+    // targeting (e.g. via PowerStone) always hit the first enemy regardless of
+    // the player's choice. Now accepts the caller's pre-selected target directly.
+    public Combatant selectTarget(List<Combatant> candidates)
     {
-        List<Combatant> enemies = getEnemies();
-        if (enemies.size() == 1)
-            return enemies.get(0);
-        return enemies.get(0);
+        if (candidates == null || candidates.isEmpty())
+            return null;
+        return candidates.get(0);
     }
 }

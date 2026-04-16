@@ -15,12 +15,16 @@ public abstract class Player extends Combatant
         this.specialSkill = specialSkill;
     }
 
+    // Note: takeTurn() is intentionally not used by BattleEngine — the engine
+    // drives turns directly via processRound() for full control over turn order,
+    // stun checks, and logging. This method is kept to satisfy the abstract
+    // contract from Combatant but should not be called externally.
     @Override
     public void takeTurn(List<Combatant> combatants, BattleEngine engine)
     {
         processEffects();
         Action action = chooseAction(combatants, engine);
-        Combatant target = engine.selectTarget(combatants);
+        Combatant target = engine.selectTarget(engine.getEnemies());
         action.execute(this, target, engine);
         specialSkill.reduceCoolDown();
     }
@@ -28,6 +32,11 @@ public abstract class Player extends Combatant
     public void addItem(Item item)
     {
         items.add(item);
+    }
+
+    public void removeItem(Item item)
+    {
+        items.remove(item);
     }
 
     public boolean hasItems()

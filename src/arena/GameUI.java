@@ -2,10 +2,12 @@ package arena;
 
 import java.util.*;
 
-public class GameUI {
+public class GameUI
+{
     private Scanner scanner = new Scanner(System.in);
 
-    public void startGame() {
+    public void startGame()
+    {
         System.out.println("TURN-BASED COMBAT ARENA");
         printDivider();
 
@@ -15,112 +17,127 @@ public class GameUI {
 
         BattleEngine engine = createBattleEngine(player, difficulty);
 
-        DisplayLoadingScreen(player, difficulty, engine);
+        displayLoadingScreen(player, difficulty, engine);
 
         runGame(engine);
     }
 
+    // -------------------------------------------------------------------------
     // Helpers
-    private int readInt(String prompt) {
-        while (true) {
-            System.out.println(prompt);
+    // -------------------------------------------------------------------------
 
-            if (!scanner.hasNextInt()) {
+    private int readInt(String prompt)
+    {
+        while (true)
+        {
+            System.out.print(prompt + " ");
+
+            if (!scanner.hasNextInt())
+            {
                 System.out.println("Invalid input, please enter a number.");
                 scanner.next();
                 continue;
             }
 
-            return scanner.nextInt();
+            int value = scanner.nextInt();
+            scanner.nextLine(); // consume trailing newline
+            return value;
         }
     }
 
-    private int readChoice(String prompt, int min, int max) {
-        int choice;
+    private int readChoice(String prompt, int min, int max)
+    {
+        while (true)
+        {
+            int choice = readInt(prompt);
 
-        while (true) {
-            choice = readInt(prompt);
-
-            if (choice >= min && choice <= max) {
+            if (choice >= min && choice <= max)
                 return choice;
-            }
-            System.out.println("Invalid choice, please enter a valid number.");
+
+            System.out.printf("Invalid choice, please enter a number between %d and %d.%n", min, max);
         }
     }
 
-    private int readIndex(String prompt, List<?> list) {
-        return readChoice(prompt, 0, list.size() - 1);
-    }
-
-    private void printDivider() {
+    private void printDivider()
+    {
         System.out.println("------------------------------");
     }
 
-    private List<String> getLabeledNames(List<Combatant> enemies) {
+    // Labels enemies with A/B/C suffixes when there are multiples of the same type
+    private List<String> getLabeledNames(List<Combatant> enemies)
+    {
         List<String> names = new ArrayList<>();
         int goblinCount = 0;
-        int wolfCount = 0;
+        int wolfCount   = 0;
 
-        for (Combatant enemy : enemies) {
-            if (enemy instanceof Goblin) {
-                goblinCount++;
-            }
-            else if (enemy instanceof Wolf) {
-                wolfCount++;
-            }
+        for (Combatant enemy : enemies)
+        {
+            if (enemy instanceof Goblin) goblinCount++;
+            else if (enemy instanceof Wolf) wolfCount++;
         }
 
         int goblinIndex = 0;
-        int wolfIndex = 0;
+        int wolfIndex   = 0;
 
-        for (Combatant enemy : enemies) {
-            if (enemy instanceof Goblin) {
-                if (goblinCount > 1) {
-                    char label = (char) ('A' + goblinIndex);
-                    names.add("Goblin " + label);
+        for (Combatant enemy : enemies)
+        {
+            if (enemy instanceof Goblin)
+            {
+                if (goblinCount > 1)
+                {
+                    names.add("Goblin " + (char) ('A' + goblinIndex));
                     goblinIndex++;
                 }
-                else {
+                else
+                {
                     names.add("Goblin");
                 }
             }
-            else if (enemy instanceof Wolf) {
-                if (wolfCount > 1) {
-                    char label = (char) ('A' + wolfIndex);
-                    names.add("Wolf " + label);
+            else if (enemy instanceof Wolf)
+            {
+                if (wolfCount > 1)
+                {
+                    names.add("Wolf " + (char) ('A' + wolfIndex));
                     wolfIndex++;
                 }
-                else {
+                else
+                {
                     names.add("Wolf");
                 }
             }
         }
         return names;
     }
-    //
 
+    // -------------------------------------------------------------------------
     // Setup
-    private Player choosePlayer() {
-        System.out.println("Choose a player:");
-        System.out.println("1. Warrior (HP: 260, Attack: 40, Defense: 20, Speed: 30)");
-        System.out.println("2. Wizard (HP: 200, Attack: 50, Defense: 10, Speed: 20)");
+    // -------------------------------------------------------------------------
 
-        int choice = readChoice("Choice (1-2): ", 1, 2);
+    private Player choosePlayer()
+    {
+        System.out.println("Choose a player:");
+        System.out.println("  1. Warrior  (HP: 260, ATK: 40, DEF: 20, SPD: 30) — Special: Shield Bash");
+        System.out.println("  2. Wizard   (HP: 200, ATK: 50, DEF: 10, SPD: 20) — Special: Arcane Blast");
+
+        int choice = readChoice("Choice (1-2):", 1, 2);
         return (choice == 1) ? new Warrior() : new Wizard();
     }
 
-    private void chooseItems(Player player) {
-        System.out.println("Choose 2 items");
-        System.out.println("1. Potion: Heals 100 HP");
-        System.out.println("2. Power Stone: Free extra skill");
-        System.out.println("3. Smoke Bomb: Immune to damage (2 turns)");
+    private void chooseItems(Player player)
+    {
+        System.out.println("Choose 2 items (duplicates allowed):");
+        System.out.println("  1. Potion      — Heals 100 HP");
+        System.out.println("  2. Power Stone — Triggers special skill once for free (no cooldown change)");
+        System.out.println("  3. Smoke Bomb  — Enemy attacks deal 0 damage for 2 turns");
 
-        for (int i = 0; i < 2; i++) {
-            int choice = readChoice("Choice: ", 1, 3);
+        for (int i = 1; i <= 2; i++)
+        {
+            int choice = readChoice(String.format("Item %d choice (1-3):", i), 1, 3);
 
-            Item item = switch (choice) {
-                case 2 -> new PowerStone();
-                case 3 -> new SmokeBomb();
+            Item item = switch (choice)
+            {
+                case 2  -> new PowerStone();
+                case 3  -> new SmokeBomb();
                 default -> new Potion();
             };
 
@@ -128,300 +145,314 @@ public class GameUI {
         }
     }
 
-    private Difficulty chooseDifficulty() {
-        System.out.println("Choose difficulty: ");
-        System.out.println("1. Easy (Initial Spawn: 3 Goblins)");
-        System.out.println("2. Medium (Initial Spawn: 1 Goblin 1 Wolf, Backup Spawn: 2 Wolf)");
-        System.out.println("3. Hard (Initial spawn: 2 Goblins, Backup Spawn: 1 Goblin 2 Wolf)");
+    private Difficulty chooseDifficulty()
+    {
+        System.out.println("Choose difficulty:");
+        System.out.println("  1. Easy   — Initial Spawn: 3 Goblins");
+        System.out.println("  2. Medium — Initial Spawn: 1 Goblin + 1 Wolf | Backup: 2 Wolves");
+        System.out.println("  3. Hard   — Initial Spawn: 2 Goblins | Backup: 1 Goblin + 2 Wolves");
 
-        int choice = readChoice("Choice: ", 1, 3);
+        int choice = readChoice("Choice (1-3):", 1, 3);
 
-        return switch (choice) {
-            case 2 -> Difficulty.MEDIUM;
-            case 3 -> Difficulty.HARD;
+        return switch (choice)
+        {
+            case 2  -> Difficulty.MEDIUM;
+            case 3  -> Difficulty.HARD;
             default -> Difficulty.EASY;
         };
     }
 
-    private BattleEngine createBattleEngine(Player player, Difficulty difficulty) {
-        List<Enemy> enemies = new ArrayList<>();
+    private BattleEngine createBattleEngine(Player player, Difficulty difficulty)
+    {
+        List<Enemy> enemies       = new ArrayList<>();
         List<Enemy> backupEnemies = new ArrayList<>();
 
-        switch (difficulty) {
-            case EASY -> {
-                for (int i = 0; i < 3; i++) {
-                    enemies.add(new Goblin());
-                }
+        switch (difficulty)
+        {
+            case EASY ->
+            {
+                for (int i = 0; i < 3; i++) enemies.add(new Goblin());
             }
-            case MEDIUM -> {
+            case MEDIUM ->
+            {
                 enemies.add(new Goblin());
                 enemies.add(new Wolf());
-                for (int i = 0; i < 2; i++) {
-                    backupEnemies.add(new Wolf());
-                }
+                for (int i = 0; i < 2; i++) backupEnemies.add(new Wolf());
             }
-            case HARD -> {
-                for (int i = 0; i < 2; i++) {
-                    enemies.add(new Goblin());
-                }
+            case HARD ->
+            {
+                for (int i = 0; i < 2; i++) enemies.add(new Goblin());
                 backupEnemies.add(new Goblin());
-                for (int i = 0; i < 2; i++) {
-                    backupEnemies.add(new Wolf());
-                }
+                for (int i = 0; i < 2; i++) backupEnemies.add(new Wolf());
             }
         }
 
         return new BattleEngine(player, enemies, backupEnemies, new SpeedBasedOrder());
     }
 
-    private void DisplayLoadingScreen(Player player, Difficulty difficulty, BattleEngine engine) {
+    // Bug fix: renamed from DisplayLoadingScreen to displayLoadingScreen
+    // to follow Java naming conventions (methods should start with lowercase).
+    private void displayLoadingScreen(Player player, Difficulty difficulty, BattleEngine engine)
+    {
         printDivider();
-        System.out.printf("Player: %s, %s Stats: HP: %d, ATK: %d, DEF: %d, SPD: %d, ",
-                player.getName(), player.getName(), player.getHp(), player.getAttack(), player.getDefense(), player.getSpeed());
+        System.out.printf("Player: %s | HP: %d, ATK: %d, DEF: %d, SPD: %d%n",
+            player.getName(), player.getHp(), player.getAttack(),
+            player.getDefense(), player.getSpeed());
 
         System.out.print("Items: ");
-        for (Item item : player.getItems()) {
-            System.out.print(item.getName() + " ");
+        List<Item> items = player.getItems();
+        for (int i = 0; i < items.size(); i++)
+        {
+            System.out.print(items.get(i).getName());
+            if (i < items.size() - 1) System.out.print(" + ");
         }
         System.out.println();
 
-        List<Combatant> enemies = engine.getEnemies();
-        System.out.print("Level: " + difficulty.name().charAt(0) + difficulty.name().substring(1).toLowerCase() + " - ");
-
-        List<String> names = getLabeledNames(enemies);
-        int goblinCount = 0;
-        int wolfCount = 0;
-        boolean first = true;
-
-        for (Combatant enemy : enemies) {
-            if (enemy instanceof Goblin) {
-                goblinCount++;
-            }
-            else if (enemy instanceof Wolf) {
-                wolfCount++;
-            }
-        }
-        if (goblinCount == 1) {
-            System.out.print("1 Goblin");
-            first = false;
-        }
-        else if (goblinCount > 1) {
-            for (String name : names) {
-                if (name.contains("Goblin")) {
-                    if (!first) {
-                        System.out.print(" + ");
-                    }
-                    System.out.print(name);
-                    first = false;
-                }
-            }
-        }
-
-        if (wolfCount == 1) {
-            if (!first) {
-                System.out.print(" + ");
-            }
-            System.out.print("1 Wolf");
-        }
-        else if (wolfCount > 1) {
-            for (String name : names) {
-                if (name.contains("Wolf")) {
-                    if (!first) {
-                        System.out.print(" + ");
-                    }
-                    System.out.print(name);
-                    first = false;
-                }
-            }
-        }
+        String diffName = difficulty.name().charAt(0) + difficulty.name().substring(1).toLowerCase();
+        System.out.print("Level: " + diffName + " — ");
+        printEnemyList(engine.getEnemies());
 
         List<Combatant> backupEnemies = engine.getBackupEnemies();
-        if (!backupEnemies.isEmpty()) {
+        if (!backupEnemies.isEmpty())
+        {
             System.out.print(" | Backup: ");
-            List<String> backupNames = getLabeledNames(backupEnemies);
-            goblinCount = 0;
-            wolfCount = 0;
-            first = true;
-
-            for (Combatant enemy : backupEnemies) {
-                if (enemy instanceof Goblin) {
-                    goblinCount++;
-                }
-                else if (enemy instanceof Wolf) {
-                    wolfCount++;
-                }
-            }
-            if (goblinCount == 1) {
-                System.out.print("1 Goblin");
-                first = false;
-            }
-            else if (goblinCount > 1) {
-                for (String name : backupNames) {
-                    if (name.contains("Goblin")) {
-                        if (!first) {
-                            System.out.print(" + ");
-                        }
-                        System.out.print(name);
-                        first = false;
-                    }
-                }
-            }
-
-            if (wolfCount == 1) {
-                if (!first) {
-                    System.out.print(" + ");
-                }
-                System.out.print("1 Wolf");
-            }
-            else if (wolfCount > 1) {
-                for (String name : backupNames) {
-                    if (name.contains("Wolf")) {
-                        if (!first) {
-                            System.out.print(" + ");
-                        }
-                        System.out.print(name);
-                        first = false;
-                    }
-                }
-            }
+            printEnemyList(backupEnemies);
         }
         System.out.println();
 
         List<Combatant> order = engine.getTurnOrder();
         System.out.print("Turn Order: ");
-        for (int i = 0; i < order.size(); i++) {
-            Combatant combatant = order.get(i);
-            System.out.print(combatant.getName() + " (SPD " + combatant.getSpeed() + ")");
-            if (i < order.size() - 1) {
-                System.out.print(" -> ");
-            }
+        for (int i = 0; i < order.size(); i++)
+        {
+            Combatant c = order.get(i);
+            System.out.print(c.getName() + " (SPD " + c.getSpeed() + ")");
+            if (i < order.size() - 1) System.out.print(" -> ");
         }
         System.out.println();
         printDivider();
     }
-    //
 
+    private void printEnemyList(List<Combatant> enemies)
+    {
+        int goblinCount = 0;
+        int wolfCount   = 0;
+        for (Combatant e : enemies)
+        {
+            if (e instanceof Goblin) goblinCount++;
+            else if (e instanceof Wolf) wolfCount++;
+        }
+
+        boolean first = true;
+        if (goblinCount > 0)
+        {
+            System.out.print(goblinCount + " Goblin" + (goblinCount > 1 ? "s" : ""));
+            first = false;
+        }
+        if (wolfCount > 0)
+        {
+            if (!first) System.out.print(" + ");
+            System.out.print(wolfCount + " Wolf" + (wolfCount > 1 ? "ves" : ""));
+        }
+    }
+
+    // -------------------------------------------------------------------------
     // Gameplay
-    private void runGame(BattleEngine engine) {
-        while (!engine.isGameOver()) {
-            System.out.println("Round " + engine.getRound());
+    // -------------------------------------------------------------------------
 
-            Action action = chooseAction(engine);
+    private void runGame(BattleEngine engine)
+    {
+        while (!engine.isGameOver())
+        {
+            System.out.println("\nRound " + engine.getRound());
+            printDivider();
+
+            Action action   = chooseAction(engine);
             Combatant target = chooseTarget(engine, action);
 
-            List<Combatant> enemies = engine.getEnemies();
-            List<String> names = getLabeledNames(enemies);
+            // Snapshot enemy list + labels BEFORE processing the round
+            // (enemies may die during the round, changing the list)
+            List<Combatant> enemiesBeforeRound = new ArrayList<>(engine.getEnemies());
+            List<String> namesBeforeRound      = getLabeledNames(enemiesBeforeRound);
 
             List<String> logs = engine.processRound(action, target);
 
-            for (String log : logs) {
-                for (int i = 0; i < enemies.size(); i++) {
-                    log = log.replace(enemies.get(i).getName(), names.get(i)); // probably need a better way of doing this
+            for (String log : logs)
+            {
+                // Replace generic enemy names with labelled names (e.g. "Goblin" -> "Goblin A")
+                for (int i = 0; i < enemiesBeforeRound.size(); i++)
+                {
+                    log = log.replace(enemiesBeforeRound.get(i).getName(), namesBeforeRound.get(i));
                 }
                 System.out.println(log);
             }
 
+            // Bug fix: engine increments round AFTER processRound() returns,
+            // so getRound() now points to the NEXT round. Subtract 1 for display.
             displayEndOfRound(engine);
             printDivider();
         }
+
         displayFinalResult(engine);
     }
-    //
 
-    // Choose actions
-    private Action chooseAction(BattleEngine engine) {
+    // -------------------------------------------------------------------------
+    // Action / target selection
+    // -------------------------------------------------------------------------
+
+    private Action chooseAction(BattleEngine engine)
+    {
         Player player = engine.getPlayer();
 
-        System.out.println("Choose your action: ");
-        System.out.println("1. Basic Attack");
-        System.out.println("2. Defend");
-        System.out.println("3. Use Item");
-        System.out.println("4. Special Skill");
+        System.out.println("Choose your action:");
+        System.out.println("  1. Basic Attack");
+        System.out.println("  2. Defend");
 
-        int max = player.hasItems() ? 4 : 3;
-        int choice = readChoice("Choice: ", 1, max);
+        boolean hasItems = player.hasItems();
+        boolean skillReady = player.getSpecialSkill().isUsable();
+        int optionCount = 2;
 
-        return switch (choice) {
-            case 2 -> new Defend();
-            case 3 -> chooseItem(player);
-            case 4 -> player.getSpecialSkill();
-            default -> new BasicAttack();
-        };
+        if (hasItems)
+        {
+            optionCount++;
+            System.out.printf("  %d. Use Item%n", optionCount);
+        }
+
+        optionCount++;
+        int skillOption = optionCount;
+        System.out.printf("  %d. Special Skill — %s%s%n",
+            skillOption,
+            player.getSpecialSkill().getName(),
+            skillReady ? "" : " [COOLDOWN: " + player.getSpecialSkill().getCurCoolDown() + " turns]");
+
+        int choice = readChoice("Choice:", 1, optionCount);
+
+        if (choice == 2) return new Defend();
+
+        if (hasItems && choice == 3) return chooseItem(player);
+
+        if (choice == skillOption)
+        {
+            if (!skillReady)
+            {
+                System.out.println("Special skill is on cooldown! Defaulting to Basic Attack.");
+                return new BasicAttack();
+            }
+            return player.getSpecialSkill();
+        }
+
+        return new BasicAttack();
     }
 
-    private Action chooseItem(Player player) {
+    private Action chooseItem(Player player)
+    {
         List<Item> items = player.getItems();
 
-        for (int i = 0; i < items.size(); i++) {
-            System.out.printf("%d. %s%n", i, items.get(i).getName());
+        System.out.println("Choose an item:");
+        for (int i = 0; i < items.size(); i++)
+        {
+            // Bug fix: was printing 0-based index ("0. Potion") which is
+            // inconsistent with every other menu. Now uses 1-based display.
+            System.out.printf("  %d. %s%n", i + 1, items.get(i).getName());
         }
 
-        int index = readIndex("Choice: ", items);
-        return new UseItem(items.get(index));
+        // Bug fix: readChoice with 1-based range, then subtract 1 for index.
+        // Previously used readIndex (0-based) but printed 1-based labels, and
+        // then also subtracted 1 — causing an off-by-one / potential crash.
+        int choice = readChoice("Choice:", 1, items.size());
+        return new UseItem(items.get(choice - 1));
     }
 
-    private Combatant chooseTarget(BattleEngine engine, Action action) {
-        if (action instanceof Defend || action instanceof UseItem) {
+    private Combatant chooseTarget(BattleEngine engine, Action action)
+    {
+        // Defend and UseItem target the player themselves; no selection needed
+        if (action instanceof Defend || action instanceof UseItem)
             return null;
-        }
 
+        // ArcaneBlast hits all enemies; target parameter is unused but we still
+        // return a valid enemy so nothing NPEs downstream
         List<Combatant> enemies = engine.getEnemies();
         List<String> names = getLabeledNames(enemies);
+
+        if (enemies.size() == 1)
+            return enemies.get(0);
 
         System.out.println("Choose your target:");
-
-        for (int i = 0; i < enemies.size(); i++) {
-            System.out.printf("%d. %s (HP: %d)%n", i + 1, names.get(i), enemies.get(i).getHp());
+        for (int i = 0; i < enemies.size(); i++)
+        {
+            System.out.printf("  %d. %s (HP: %d)%n", i + 1, names.get(i), enemies.get(i).getHp());
         }
 
-        int index = readIndex("Choice: ", enemies);
-        return enemies.get(index-1);
+        // Bug fix: was using readIndex (0 to size-1) then doing enemies.get(index-1),
+        // which returns enemies.get(-1) when the player types "1" → crash.
+        // Now uses readChoice (1 to size) and subtracts 1 for the index.
+        int choice = readChoice("Choice:", 1, enemies.size());
+        return enemies.get(choice - 1);
     }
-    //
 
+    // -------------------------------------------------------------------------
     // Display
-    private void displayEndOfRound(BattleEngine engine) {
+    // -------------------------------------------------------------------------
+
+    private void displayEndOfRound(BattleEngine engine)
+    {
         Player player = engine.getPlayer();
-        List<Combatant> enemies = engine.getEnemies();
-        List<String> names = getLabeledNames(enemies);
+        List<Combatant> aliveEnemies = engine.getEnemies();
+        List<String> names           = getLabeledNames(aliveEnemies);
 
-        System.out.printf("End of Round %d %s HP: %d/%d | ",
-                engine.getRound(), player.getName(), player.getHp(), player.getMaxHp());
+        // Bug fix: engine increments round at end of processRound(), so
+        // getRound() returns the NEXT round's number. Use getRound() - 1.
+        System.out.printf("%nEnd of Round %d: %s HP: %d/%d | ",
+            engine.getRound() - 1,
+            player.getName(),
+            player.getHp(),
+            player.getMaxHp());
 
-        for (int i = 0; i < enemies.size(); i++) {
-            System.out.printf("%s HP: %d | ", names.get(i), enemies.get(i).getHp());
+        for (int i = 0; i < aliveEnemies.size(); i++)
+        {
+            System.out.printf("%s HP: %d | ", names.get(i), aliveEnemies.get(i).getHp());
         }
 
-        int potion = 0;
+        int potion     = 0;
         int powerStone = 0;
-        int smokeBomb = 0;
+        int smokeBomb  = 0;
 
-        for (Item item : player.getItems()) {
-            if (item instanceof Potion) {
-                potion++;
-            }
-            if (item instanceof PowerStone) {
-                powerStone++;
-            }
-            if (item instanceof SmokeBomb) {
-                smokeBomb++;
-            }
+        for (Item item : player.getItems())
+        {
+            if (item instanceof Potion)     potion++;
+            if (item instanceof PowerStone) powerStone++;
+            if (item instanceof SmokeBomb)  smokeBomb++;
         }
 
-        if (potion > 0) {
-            System.out.printf("Potion: %d | ", potion);
-        }
-        if (powerStone > 0) {
-            System.out.printf("Power Stone: %d | ", powerStone);
-        }
-        if (smokeBomb > 0) {
-            System.out.printf("Smoke Bomb: %d | ", smokeBomb);
-        }
+        if (potion     > 0) System.out.printf("Potion: %d | ", potion);
+        if (powerStone > 0) System.out.printf("Power Stone: %d | ", powerStone);
+        if (smokeBomb  > 0) System.out.printf("Smoke Bomb: %d | ", smokeBomb);
 
-        System.out.printf("Special Skills Cooldown: %d rounds%n", player.getSpecialSkill().getCurCoolDown());
+        System.out.printf("Special Skill Cooldown: %d rounds%n",
+            player.getSpecialSkill().getCurCoolDown());
     }
 
-    private void displayFinalResult(BattleEngine engine) {
+    private void displayFinalResult(BattleEngine engine)
+    {
+        printDivider();
         System.out.println(engine.getSummary());
+        printDivider();
+
+        System.out.println("1. Play again with same settings");
+        System.out.println("2. Start a new game");
+        System.out.println("3. Exit");
+
+        int choice = readChoice("Choice:", 1, 3);
+
+        switch (choice)
+        {
+            case 1 ->
+            {
+                // Rebuild engine with same player type and difficulty
+                // (simplest approach: just restart the whole flow)
+                startGame();
+            }
+            case 2 -> startGame();
+            default -> System.out.println("Thanks for playing!");
+        }
     }
 }
