@@ -23,6 +23,7 @@ public class AttackBuff extends StatusEffect
         }
     }
 
+    @Override
     public void remove(Combatant combatant)
     {
         combatant.attack -= ATTACK_BONUS;
