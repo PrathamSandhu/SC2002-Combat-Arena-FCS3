@@ -5,7 +5,7 @@ import java.util.*;
 public class GameUI
 {
     private Scanner scanner = new Scanner(System.in);
-    private Set<Class<? extends Item> usedItemTypes = new HashSet<>();
+    private Set<Class<? extends Item>> usedItemTypes = new HashSet<>();
 
     public void startGame()
     {
@@ -409,12 +409,10 @@ public class GameUI
         	    }
             
             }
-        }
-
         int coolDown = player.getSpecialSkill().getCurCoolDown();
         System.out.printf("Special Skill Cooldown: %d %s | %s ATK: %d%n",
-            coolDown, coolDown == 1 ? "round" : "rounds",
-        	player.getName(), player.getAttack());
+                coolDown, coolDown == 1 ? "round" : "rounds",
+                player.getName(), player.getAttack());
     }
 
     private void displayFinalResult(BattleEngine engine)
