@@ -12,7 +12,6 @@ public class BattleEngine
     private int round;
     private boolean backupSpawned;
     private List<String> currentRoundLog;
-    private int preTurnCoolDown;
 
     public BattleEngine(Player player, List<Enemy> initialEnemies, List<Enemy> backupEnemies, TurnOrderStrategy turnOrderStrategy)
     {
@@ -54,10 +53,9 @@ public class BattleEngine
 
             if (combatant instanceof Player)
             {
-            	preTurnCoolDown = player.getSpecialSkill().getCurCoolDown();
+                player.getSpecialSkill().reduceCoolDown();
             	String result = playerAction.execute(combatant, playerTarget, this);
                 currentRoundLog.add(result);
-                player.getSpecialSkill().reduceCoolDown();
             }
             else
             {
@@ -163,9 +161,6 @@ public class BattleEngine
                 getAliveEnemies().size(), round - 1);
         }
     }
-
-    public int getPreTurnCoolDown() {
-        return preTurnCoolDown;
 
     public Combatant selectTarget(List<Combatant> candidates)
     {
