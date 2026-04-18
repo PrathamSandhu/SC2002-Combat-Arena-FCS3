@@ -36,6 +36,7 @@ public class DefendEffect extends StatusEffect
         return false;
     }
 
+    @Override
     public void remove(Combatant combatant)
     {
         combatant.defense -= DEFENSE_BONUS;
