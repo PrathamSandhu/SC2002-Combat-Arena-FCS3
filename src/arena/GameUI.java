@@ -5,6 +5,7 @@ import java.util.*;
 public class GameUI
 {
     private Scanner scanner = new Scanner(System.in);
+    private Set<Class<? extends Item> usedItemTypes = new HashSet<>();
 
     public void startGame()
     {
@@ -96,6 +97,7 @@ public class GameUI
             };
 
             player.addItem(item);
+            usedItemTypes.add(item.getClass());
         }
     }
 
@@ -375,22 +377,38 @@ public class GameUI
         	}
         }
 
-        if (potion     > 0) System.out.printf("Potion: %d | ", potion);
+        if (potion     > 0) 
+            System.out.printf("Potion: %d | ", potion);
         if (powerStone > 0) 
         	System.out.printf("Power Stone: %d | ", powerStone);
-        else if (player.hadItemType(PowerStone.class))
+        else if (usedItemTypes.contains(PowerStone.class))
         	System.out.printf("Power Stone: 0 | ");
         if (smokeBomb  > 0) {
         	System.out.printf("Smoke Bomb: %d | ", smokeBomb);
-        } else if (smokeBombEffect != null) {
-        	int turnsRemaining = smokeBombEffect.getDuration() - 1;
-        	if (turnsRemaining > 0 ) {
-            	System.out.printf("Smoke Bomb: 0 | Effect: %d turn%s remaining | ",
-            			turnsRemaining, turnsRemaining == 1 ? "" : "s");
-        	} else {
-        		System.out.printf("Smoke Bomb: 0 | ");
-        	}
-
+        } else if (usedItemTypes.contains(SmokeBomb.class)) {
+            if (smokeBombEffect != null) {
+                int turnsRemaining = smokeBombEffect.getDuration() - 1;
+                if (turnsRemaining > 0) {
+                    System.out.printf("Smoke Bomb: 0 | Effect: %d turn%s remaining | ",
+                			turnsRemaining, turnsRemaining == 1 ? "" : "s");
+                } else {
+                    System.out.printf("Smoke Bomb: 0 | ");
+                }
+            } else {
+                System.out.printf("Smoke Bomb: 0 | ");
+            }
+        }
+            
+            if (smokeBombEffect != null) {
+            	int turnsRemaining = smokeBombEffect.getDuration() - 1;
+            	if (turnsRemaining > 0 ) {
+                	System.out.printf("Smoke Bomb: 0 | Effect: %d turn%s remaining | ",
+                			turnsRemaining, turnsRemaining == 1 ? "" : "s");
+            	} else {
+            		System.out.printf("Smoke Bomb: 0 | ");
+        	    }
+            
+            }
         }
 
         int coolDown = player.getSpecialSkill().getCurCoolDown();
