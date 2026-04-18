@@ -63,52 +63,6 @@ public class GameUI
         System.out.println("------------------------------");
     }
 
-    // Labels enemies with A/B/C suffixes when there are multiples of the same type
-    private List<String> getLabeledNames(List<Combatant> enemies)
-    {
-        List<String> names = new ArrayList<>();
-        int goblinCount = 0;
-        int wolfCount   = 0;
-
-        for (Combatant enemy : enemies)
-        {
-            if (enemy instanceof Goblin) goblinCount++;
-            else if (enemy instanceof Wolf) wolfCount++;
-        }
-
-        int goblinIndex = 0;
-        int wolfIndex   = 0;
-
-        for (Combatant enemy : enemies)
-        {
-            if (enemy instanceof Goblin)
-            {
-                if (goblinCount > 1)
-                {
-                    names.add("Goblin " + (char) ('A' + goblinIndex));
-                    goblinIndex++;
-                }
-                else
-                {
-                    names.add("Goblin");
-                }
-            }
-            else if (enemy instanceof Wolf)
-            {
-                if (wolfCount > 1)
-                {
-                    names.add("Wolf " + (char) ('A' + wolfIndex));
-                    wolfIndex++;
-                }
-                else
-                {
-                    names.add("Wolf");
-                }
-            }
-        }
-        return names;
-    }
-
     // -------------------------------------------------------------------------
     // Setup
     // -------------------------------------------------------------------------
@@ -171,19 +125,24 @@ public class GameUI
         {
             case EASY ->
             {
-                for (int i = 0; i < 3; i++) enemies.add(new Goblin());
+                enemies.add(new Goblin("Goblin A"));
+                enemies.add(new Goblin("Goblin B"));
+                enemies.add(new Goblin("Goblin C"));
             }
             case MEDIUM ->
             {
                 enemies.add(new Goblin());
                 enemies.add(new Wolf());
-                for (int i = 0; i < 2; i++) backupEnemies.add(new Wolf());
+                backupEnemies.add(new Wolf("Wolf A"));
+                backupEnemies.add(new Wolf("Wolf B"));
             }
             case HARD ->
             {
-                for (int i = 0; i < 2; i++) enemies.add(new Goblin());
-                backupEnemies.add(new Goblin());
-                for (int i = 0; i < 2; i++) backupEnemies.add(new Wolf());
+            	enemies.add(new Goblin("Goblin A"));
+            	enemies.add(new Goblin("Goblin B"));
+                backupEnemies.add(new Goblin("Goblin C"));
+                backupEnemies.add(new Wolf("Wolf A"));
+                backupEnemies.add(new Wolf("Wolf B"));
             }
         }
 
@@ -251,7 +210,7 @@ public class GameUI
         if (wolfCount > 0)
         {
             if (!first) System.out.print(" + ");
-            System.out.print(wolfCount + " Wolf" + (wolfCount > 1 ? "ves" : ""));
+            System.out.print(wolfCount + (wolfCount > 1 ? " Wolves" : " Wolf"));
         }
     }
 
@@ -269,25 +228,11 @@ public class GameUI
             Action action   = chooseAction(engine);
             Combatant target = chooseTarget(engine, action);
 
-            // Snapshot enemy list + labels BEFORE processing the round
-            // (enemies may die during the round, changing the list)
-            List<Combatant> enemiesBeforeRound = new ArrayList<>(engine.getEnemies());
-            List<String> namesBeforeRound      = getLabeledNames(enemiesBeforeRound);
-
             List<String> logs = engine.processRound(action, target);
 
             for (String log : logs)
-            {
-                // Replace generic enemy names with labelled names (e.g. "Goblin" -> "Goblin A")
-                for (int i = 0; i < enemiesBeforeRound.size(); i++)
-                {
-                    log = log.replace(enemiesBeforeRound.get(i).getName(), namesBeforeRound.get(i));
-                }
                 System.out.println(log);
-            }
 
-            // Bug fix: engine increments round AFTER processRound() returns,
-            // so getRound() now points to the NEXT round. Subtract 1 for display.
             displayEndOfRound(engine);
             printDivider();
         }
@@ -371,7 +316,6 @@ public class GameUI
         // ArcaneBlast hits all enemies; target parameter is unused but we still
         // return a valid enemy so nothing NPEs downstream
         List<Combatant> enemies = engine.getEnemies();
-        List<String> names = getLabeledNames(enemies);
 
         if (enemies.size() == 1)
             return enemies.get(0);
@@ -379,7 +323,7 @@ public class GameUI
         System.out.println("Choose your target:");
         for (int i = 0; i < enemies.size(); i++)
         {
-            System.out.printf("  %d. %s (HP: %d)%n", i + 1, names.get(i), enemies.get(i).getHp());
+            System.out.printf("  %d. %s (HP: %d)%n", i + 1, enemies.get(i).getName(), enemies.get(i).getHp());
         }
 
         // Bug fix: was using readIndex (0 to size-1) then doing enemies.get(index-1),
@@ -397,7 +341,6 @@ public class GameUI
     {
         Player player = engine.getPlayer();
         List<Combatant> aliveEnemies = engine.getEnemies();
-        List<String> names           = getLabeledNames(aliveEnemies);
 
         // Bug fix: engine increments round at end of processRound(), so
         // getRound() returns the NEXT round's number. Use getRound() - 1.
@@ -407,9 +350,10 @@ public class GameUI
             player.getHp(),
             player.getMaxHp());
 
-        for (int i = 0; i < aliveEnemies.size(); i++)
+        for (Combatant enemy : aliveEnemies)
         {
-            System.out.printf("%s HP: %d | ", names.get(i), aliveEnemies.get(i).getHp());
+        	String stunTag = enemy.hasEffect(Stun.class) ? " [STUNNED]" : "";
+            System.out.printf("%s HP: %d%s | ", enemy.getName(), enemy.getHp(), stunTag);
         }
 
         int potion     = 0;
@@ -422,13 +366,37 @@ public class GameUI
             if (item instanceof PowerStone) powerStone++;
             if (item instanceof SmokeBomb)  smokeBomb++;
         }
+        
+        SmokeBombEffect smokeBombEffect = null;
+        for (StatusEffect effect : player.getActiveEffects()) {
+        	if (effect instanceof SmokeBombEffect) {
+        		smokeBombEffect = (SmokeBombEffect) effect;
+        		break;
+        	}
+        }
 
         if (potion     > 0) System.out.printf("Potion: %d | ", potion);
-        if (powerStone > 0) System.out.printf("Power Stone: %d | ", powerStone);
-        if (smokeBomb  > 0) System.out.printf("Smoke Bomb: %d | ", smokeBomb);
+        if (powerStone > 0) 
+        	System.out.printf("Power Stone: %d | ", powerStone);
+        else if (player.hadItemType(PowerStone.class))
+        	System.out.printf("Power Stone: 0 | ");
+        if (smokeBomb  > 0) {
+        	System.out.printf("Smoke Bomb: %d | ", smokeBomb);
+        } else if (smokeBombEffect != null) {
+        	int turnsRemaining = smokeBombEffect.getDuration() - 1;
+        	if (turnsRemaining > 0 ) {
+            	System.out.printf("Smoke Bomb: 0 | Effect: %d turn%s remaining | ",
+            			turnsRemaining, turnsRemaining == 1 ? "" : "s");
+        	} else {
+        		System.out.printf("Smoke Bomb: 0 | ");
+        	}
 
-        System.out.printf("Special Skill Cooldown: %d rounds%n",
-            player.getSpecialSkill().getCurCoolDown());
+        }
+
+        int coolDown = player.getSpecialSkill().getCurCoolDown();
+        System.out.printf("Special Skill Cooldown: %d %s | %s ATK: %d%n",
+            coolDown, coolDown == 1 ? "round" : "rounds",
+        	player.getName(), player.getAttack());
     }
 
     private void displayFinalResult(BattleEngine engine)
