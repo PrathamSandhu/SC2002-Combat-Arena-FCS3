@@ -11,6 +11,8 @@ public abstract class StatusEffect
 
     public abstract void apply(Combatant combatant);
 
+    public void remove(Combatant combatant) {};
+
     public void tick()
     {
         if (duration > 0)
