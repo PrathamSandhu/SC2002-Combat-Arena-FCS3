@@ -37,13 +37,15 @@ public class ArcaneBlast extends SpecialSkill
                 // user.applyEffect(atkBuff), causing the +10 to fire immediately AND
                 // again on every future processEffects() call (infinite stacking).
                 // Now we only call applyEffect() — the effect system handles apply().
+            	int preAttack = user.getAttack();
                 AttackBuff atkBuff = new AttackBuff();
                 user.applyEffect(atkBuff);
+                atkBuff.apply(user);
                 message.append(String.format(
                     "  %s: HP: %d -> %d ELIMINATED (dmg: %d - %d = %d) | Wizard ATK: %d -> %d (+10)%n",
                     enemy.getName(), initHp, enemy.getHp(),
-                    user.getAttack(), enemy.getDefense(), damage,
-                    user.getAttack(), user.getAttack() + 10));
+                    preAttack, enemy.getDefense(), damage,
+                    preAttack, user.getAttack()));
             }
         }
 
