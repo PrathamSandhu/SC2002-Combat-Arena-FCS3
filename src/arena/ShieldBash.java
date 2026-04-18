@@ -2,8 +2,9 @@ package arena;
 
 public class ShieldBash extends SpecialSkill {
     @Override
-    public String execute(Combatant user, Combatant target, BattleEngine engine) {
-        if (!isUsable()) {
+    // new
+    public String execute(Combatant user, Combatant target, BattleEngine engine, boolean ignoreCoolDown) {
+        if (!ignoreCoolDown && !isUsable()) {
             return "ShieldBash on cooldown!";
         }
 

@@ -2,10 +2,11 @@ package arena;
 
 public class ArcaneBlast extends SpecialSkill
 {
+    // new
     @Override
-    public String execute(Combatant user, Combatant target, BattleEngine engine)
+    public String execute(Combatant user, Combatant target, BattleEngine engine, boolean ignoreCoolDown)
     {
-        if (!isUsable())
+        if (!ignoreCoolDown && !isUsable())
         {
             // Bug fix: was "ShieldBash on cooldown!" (copy-paste error)
             return "ArcaneBlast on cooldown!";

@@ -3,13 +3,16 @@ package arena;
 public class PowerStone implements Item {
     @Override
     public String use(Player user, BattleEngine engine) {
+        // new
         SpecialSkill skill = user.getSpecialSkill();
-        int before = skill.getCurCoolDown();
-        String result = skill.execute(user, engine.selectTarget(engine.getEnemies()), engine);
-        skill.curCoolDown = before;
+        int preTurnCoolDown = engine.getPreTurnCoolDown();
+        Combatant target= engine.selectTarget(engine.getEnemies());
 
-        return String.format("%s used: %s | Cooldown unchanged -> %d (%s does not affect cooldown) | %s consumed", getName(), result,
-                            before, getName(), getName());
+        String result = skill.execute(user, target, engine, true); // see engine code first
+        skill.setCoolDown(preTurnCoolDown + 1);
+        
+        return String.format("%s used -> %s | Cooldown unchanged -> %d (Power Stone does not affect cooldown) | Power Stone consumed",
+        		getName(), result, preTurnCoolDown - 1);
     }
 
     @Override
