@@ -10,11 +10,12 @@ public class ShieldBash extends SpecialSkill {
         int damage = Math.max(0, user.getAttack() - target.getDefense());
         int initHp = target.getHp();
         target.takeDamage(damage);
-        target.applyEffect(new Stun());
+        Stun stun = new Stun();
+        target.applyEffect(stun);
         triggerCoolDown();
 
         if (target.getHp() > 0) {
-            return String.format("%s -> %s -> %s: HP: %d -> %d (dmg: %d - %d = %d) | %s STUNNED (%d turns)", user.getName(), getName(), target.getName(), initHp, target.getHp(), user.getAttack(), target.getDefense(), damage, target.getName(), getCurCoolDown());
+            return String.format("%s -> %s -> %s: HP: %d -> %d (dmg: %d - %d = %d) | %s STUNNED (%d turns)", user.getName(), getName(), target.getName(), initHp, target.getHp(), user.getAttack(), target.getDefense(), damage, target.getName(), stun.getDuration());
         }
         else {
             return String.format("%s -> %s -> %s: HP: %d -> %d ELIMINATED (dmg: %d - %d = %d)", user.getName(), getName(), target.getName(), initHp, target.getHp(), user.getAttack(), target.getDefense(), damage);
