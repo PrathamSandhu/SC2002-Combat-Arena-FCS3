@@ -2,16 +2,20 @@ package arena;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 public abstract class Player extends Combatant
 {
     protected List<Item> items;
     protected SpecialSkill specialSkill;
+    protected Set<Class<? extends Item>> originalItemTypes;
 
     public Player(int hp, int attack, int defense, int speed, SpecialSkill specialSkill)
     {
         super(hp, attack, defense, speed);
         this.items = new ArrayList<>();
+        this.originalItemTypes = new HashSet<>();
         this.specialSkill = specialSkill;
     }
 
@@ -32,6 +36,11 @@ public abstract class Player extends Combatant
     public void addItem(Item item)
     {
         items.add(item);
+        originalItemTypes.add(item.getClass());
+    }
+    
+    public boolean hadItemType(Class<? extends Item> type) {
+    	return originalItemTypes.contains(type);
     }
 
     public void removeItem(Item item)
