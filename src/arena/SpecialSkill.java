@@ -25,6 +25,9 @@ public abstract class SpecialSkill implements Action {
         }
     }
 
+    public void resetCoolDown(int value) {
+        curCoolDown = value;
+
     @Override
     public String getName() {
         return "SpecialSkill";
