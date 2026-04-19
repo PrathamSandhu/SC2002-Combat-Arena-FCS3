@@ -403,17 +403,7 @@ public class GameUI
                 System.out.printf("Smoke Bomb: 0 | ");
             }
         }
-            
-            if (smokeBombEffect != null) {
-            	int turnsRemaining = smokeBombEffect.getDuration() - 1;
-            	if (turnsRemaining > 0 ) {
-                	System.out.printf("Smoke Bomb: 0 | Effect: %d turn%s remaining | ",
-                			turnsRemaining, turnsRemaining == 1 ? "" : "s");
-            	} else {
-            		System.out.printf("Smoke Bomb: 0 | ");
-        	    }
-            
-            }
+
         int coolDown = player.getSpecialSkill().getCurCoolDown();
         System.out.printf("Special Skill Cooldown: %d %s | %s ATK: %d%n",
                 coolDown, coolDown == 1 ? "round" : "rounds",
