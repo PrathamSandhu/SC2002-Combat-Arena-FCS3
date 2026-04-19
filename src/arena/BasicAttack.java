@@ -6,6 +6,9 @@ public class BasicAttack implements Action {
     int damage = Math.max(0, user.getAttack() - target.getDefense());
     int initHp = target.getHp();
     target.takeDamage(damage);
+    if (!target.isAlive()) {
+      engine.registerElimination(target);
+    }
 
     if (target.getHp() > 0) {
       return String.format("%s -> %s -> %s: HP: %d -> %d (dmg: %d - %d = %d)", user.getName(), getName(), target.getName(), initHp, target.getHp(), user.getAttack(), target.getDefense(), damage);

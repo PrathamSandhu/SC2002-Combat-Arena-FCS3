@@ -11,6 +11,9 @@ public class ShieldBash extends SpecialSkill {
         int damage = Math.max(0, user.getAttack() - target.getDefense());
         int initHp = target.getHp();
         target.takeDamage(damage);
+        if (!target.isAlive()) {
+            engine.registerElimination(target);
+        }
         Stun stun = new Stun();
         target.applyEffect(stun);
         triggerCoolDown();

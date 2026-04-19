@@ -1,7 +1,9 @@
 package arena;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class BattleEngine
 {
@@ -13,6 +15,8 @@ public class BattleEngine
     private boolean backupSpawned;
     private List<String> currentRoundLog;
     private int preTurnCoolDown;
+    private Set<Combatant> eliminatedLoggedThisRound;
+    private Set<Combatant> eliminatedThisRound;
 
     public BattleEngine(Player player, List<Enemy> initialEnemies, List<Enemy> backupEnemies, TurnOrderStrategy turnOrderStrategy)
     {
@@ -34,6 +38,8 @@ public class BattleEngine
     public List<String> processRound(Action playerAction, Combatant playerTarget)
     {
         currentRoundLog = new ArrayList<>();
+        eliminatedLoggedThisRound = new HashSet<>();
+        eliminatedThisRound = new HashSet<>();
         List<Combatant> allCombatants = getTurnOrder();
 
         currentRoundLog.add("--- Round " + round + " ---");
@@ -41,7 +47,10 @@ public class BattleEngine
         for (Combatant combatant : allCombatants)
         {
             if (!combatant.isAlive()) {
-                currentRoundLog.add(combatant.getName() + " ELIMINATED: skipped");
+                if (eliminatedThisRound.contains(combatant) && !eliminatedLoggedThisRound.contains(combatant)) {
+                    currentRoundLog.add(combatant.getName() + "-> ELIMINATED: skipped");
+                    eliminatedLoggedThisRound.add(combatant);
+                }
                 continue;
             }
 
@@ -73,6 +82,10 @@ public class BattleEngine
         checkBackupSpawn(currentRoundLog);
         round++;
         return currentRoundLog;
+    }
+
+    public void registerElimination(Combatant target) {
+        eliminatedThisRound.add(target);
     }
 
     private void checkBackupSpawn(List<String> log)

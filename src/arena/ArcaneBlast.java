@@ -24,6 +24,9 @@ public class ArcaneBlast extends SpecialSkill
             int damage = Math.max(0, user.getAttack() - enemy.getDefense());
             int initHp = enemy.getHp();
             enemy.takeDamage(damage);
+            if (!target.isAlive()) {
+                engine.registerElimination(target);
+            }
 
             if (enemy.getHp() > 0)
             {
