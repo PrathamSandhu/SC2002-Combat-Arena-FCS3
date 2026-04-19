@@ -118,6 +118,16 @@ public class GameUI
         };
     }
 
+    private void spawnGoblins(List<Enemy> list, int count, char start) {
+    	for (int i = 0; i < count; i++)
+    		list.add(new Goblin("Goblin " + (char)(start + i)));
+    }
+    
+    private void spawnWolves(List<Enemy> list, int count, char start) {
+    	for (int i = 0; i < count; i++)
+    		list.add(new Wolf("Wolf " + (char)(start + i)));
+    }
+    
     private BattleEngine createBattleEngine(Player player, Difficulty difficulty)
     {
         List<Enemy> enemies       = new ArrayList<>();
@@ -127,24 +137,19 @@ public class GameUI
         {
             case EASY ->
             {
-                enemies.add(new Goblin("Goblin A"));
-                enemies.add(new Goblin("Goblin B"));
-                enemies.add(new Goblin("Goblin C"));
+                spawnGoblins(enemies, 3, 'A');
             }
             case MEDIUM ->
             {
                 enemies.add(new Goblin());
                 enemies.add(new Wolf());
-                backupEnemies.add(new Wolf("Wolf A"));
-                backupEnemies.add(new Wolf("Wolf B"));
+                spawnWolves(backupEnemies, 2, 'A');
             }
             case HARD ->
             {
-            	enemies.add(new Goblin("Goblin A"));
-            	enemies.add(new Goblin("Goblin B"));
-                backupEnemies.add(new Goblin("Goblin C"));
-                backupEnemies.add(new Wolf("Wolf A"));
-                backupEnemies.add(new Wolf("Wolf B"));
+            	spawnGoblins(enemies, 2, 'A');
+            	spawnGoblins(backupEnemies, 1, 'C');
+            	spawnWolves(backupEnemies, 2, 'A');
             }
         }
 
