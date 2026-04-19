@@ -31,7 +31,9 @@ public abstract class Enemy extends Combatant
     {
         if (target.hasEffect(SmokeBombEffect.class))
         {
-            engine.log(getName() + " attacks " + target.getName() + " but Smoke Bomb blocks it!");
+            String record = String.format("%s -> BasicAttack -> %s: 0 damage (Smoke Bomb active) | %s HP: %d",
+                    getName(), target.getName(), target,getName(), target,getHp());
+            engine.log(record);
             return;
         }
         int damage = Math.max(0, attack - target.getDefense());

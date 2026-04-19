@@ -18,7 +18,7 @@ public class Defend implements Action
         user.applyEffect(new DefendEffect());
 
         return String.format(
-            "%s -> %s: Defense: %d + %d = %d | Defense increased for 2 turns",
+            "%s -> %s: Defense: %d + %d = %d (2 turns)",
             user.getName(), getName(), initDefense, DEFENSE_BONUS, initDefense + DEFENSE_BONUS);
     }
 

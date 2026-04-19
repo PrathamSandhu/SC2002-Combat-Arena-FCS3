@@ -40,13 +40,15 @@ public class BattleEngine
 
         for (Combatant combatant : allCombatants)
         {
-            if (!combatant.isAlive())
+            if (!combatant.isAlive()) {
+                currentRoundLog.add(combatant.getName() + " ELIMINATED: skipped");
                 continue;
+            }
 
             if (combatant.hasEffect(Stun.class))
             {
                 combatant.processEffects();
-                currentRoundLog.add(combatant.getName() + " is STUNNED and skips their turn.");
+                currentRoundLog.add(combatant.getName() + " -> STUNNED: turn skipped");
                 continue;
             }
 

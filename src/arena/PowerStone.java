@@ -12,7 +12,7 @@ public class PowerStone implements Item {
         skill.setCoolDown(preTurnCoolDown + 1);
         
         return String.format("%s used -> %s | Cooldown unchanged -> %d (Power Stone does not affect cooldown) | Power Stone consumed",
-        		getName(), result, preTurnCoolDown - 1);
+        		getName(), result, preTurnCoolDown);
     }
 
     @Override
