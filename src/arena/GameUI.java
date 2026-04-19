@@ -382,8 +382,10 @@ public class GameUI
         	}
         }
 
-        if (potion     > 0) 
+        if (potion > 0) 
             System.out.printf("Potion: %d | ", potion);
+        else if (usedItemTypes.contains(Potion.class)) 
+        	System.out.printf("Potion: 0 | ");
         if (powerStone > 0) 
         	System.out.printf("Power Stone: %d | ", powerStone);
         else if (usedItemTypes.contains(PowerStone.class))
@@ -403,6 +405,17 @@ public class GameUI
                 System.out.printf("Smoke Bomb: 0 | ");
             }
         }
+            
+            if (smokeBombEffect != null) {
+            	int turnsRemaining = smokeBombEffect.getDuration() - 1;
+            	if (turnsRemaining > 0 ) {
+                	System.out.printf("Smoke Bomb: 0 | Effect: %d turn%s remaining | ",
+                			turnsRemaining, turnsRemaining == 1 ? "" : "s");
+            	} else {
+            		System.out.printf("Smoke Bomb: 0 | ");
+        	    }
+            
+            }
 
         int coolDown = player.getSpecialSkill().getCurCoolDown();
         System.out.printf("Special Skill Cooldown: %d %s | %s ATK: %d%n",
